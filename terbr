@@ -1,16 +1,33 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-#┌────────────────────────────────────────────┐
-#│ Author: MrAlpha786     (github/MrAlpha786) │
-#│                                            │
-#│ Changelog                                  │
-#│                                            │
-#│ v1.0:  Initial Build                       │
-#│ v2.0:  Select custom directory for backup  │
-#│        Select custom files to restore      │
-#│        Code Optimizations                  │
-#└────────────────────────────────────────────┘
-
+# TERBR v2.2 - Termux Backup/Restore Tool
+# Copyright (C) 2020  MrAlpha786
+#
+#  This program is free software: you can redistribute it 
+# and/ or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation either
+# version 3 of the License, or (at your option) any later
+# version.
+#
+#  This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more
+# details.
+#
+#  You should have received a copy of the GNU General 
+# Public License along with this program.  If not, see
+# <https://www.gnu.org/licenses/>.
+#
+# Author: MrAlpha786     (github/MrAlpha786)
+#
+# Changelog
+#
+# v2.0:  Select custom directory for backup
+#        Select custom files to restore
+#        Code Optimizations
+# v1.0:  Initial Build
+#
 
 trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
 stty -echo
@@ -54,6 +71,11 @@ version () {
 	
     echo "terbr (Termux Backup/Restore tool) v2.2"
     echo "A tool to Backup and Restore Termux"
+    echo -e "Copyright (C) 2020  MrAlpha786"
+    echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+    echo
+    echo "This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    echo
     echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
 
