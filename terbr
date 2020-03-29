@@ -1,0 +1,398 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+#┌────────────────────────────────────────────┐
+#│ Author: MrAlpha786     (github/MrAlpha786) │
+#│                                            │
+#│ Changelog                                  │
+#│                                            │
+#│ v1.0:  Initial Build                       │
+#│ v2.0:  Select custom directory for backup  │
+#│        Select custom files to restore      │
+#│        Code Optimizations                  │
+#└────────────────────────────────────────────┘
+
+
+# trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
+stty -echo
+#colors
+R='\033[1;31m'
+B='\033[1;34m'
+C='\033[0;36m'
+G='\033[1;32m'
+W='\033[1;37m'
+Y='\033[1;33m'
+N='\033[0m'
+UP='\u001b[3A'
+A='\u001b[2A'
+BACKUP_SRC='/data/data/com.termux/files'
+DEFAULT_DEST='/storage/emulated/0/'
+TERBR_PROP="$HOME/.termux/terbr.pref"
+BACKUP_DEST=""
+n=0
+
+banner () {
+    clear
+    echo
+    echo -e $B" ┌───────────────────────┐ "
+    echo -e $B" │$C         TERBR         $B│"
+    echo -e $B" └───────────────────────┘ "
+    echo -e $R"  -> MrAlpha786 $N"
+    echo
+}
+
+help () {
+
+	echo -e "usage: terbr [option] "
+	echo -e "   -h  --help         Print Help and exit"
+	echo -e "   -v  --version      Print Version"
+	echo -e "   -b  --backup       Take Backup"
+	echo -e "   -r  --restore      Restore Backup"
+    echo -e "   -c  --change-dir   Change Backup Directory"
+}
+
+version () {
+	
+    echo "terbr v2.0"
+	echo "A tool to Backup and Restore Termux"
+    echo "Author: MrAlpha786 (github.com/MrAlpha786)"
+}
+
+get_DEST () {
+  
+    DEST='/storage/emulated/0/'
+
+    while true; do
+        clear
+        
+        banner
+
+        echo -e " Choose Directory: \n"
+        echo -e " (Place \"+\" in front to select directory.\ne.g.\"1+\")"
+        echo
+
+        dn=$(ls -F $DEST | grep / | wc -l)
+
+        if [ $dn -ne 0 ]; then
+
+            cd $DEST
+            echo -e "$G $PWD"
+            echo
+            echo "     0  .."
+            ls -F $DEST | grep / | nl
+
+            stty echo
+            read -p " Select[0-$dn]: " n
+            stty -echo
+
+            if [[ $n -eq 0 && $n =~ ^[0-9]+$ ]]; then
+            
+                if [ $PWD == "/storage/emulated/0" ]; then
+                    echo " Permission Denied!"
+                    sleep 1
+                    continue
+                else
+                    cd ..
+                    DEST="$PWD/"
+                fi
+
+            elif [[ $n -le $dn && $n =~ ^[0-9]+$ ]]; then
+                DEST+="$(ls -F | grep / | head -$n | tail -1)"
+            elif [[ $n =~ ^[1-9]+\+$ ]]; then
+                
+                n=${n/\+/}
+                if [[ $n -ge 1 && $n -lt $dn ]]; then
+                    DEST+="$(ls -F | grep / | head -$n | tail -1)"
+                    if [ $1 == "R" ]; then
+                        echo $DEST > $TERBR_PROP
+                        return
+                                
+                    else
+                        set_DEST $DEST
+                        return
+                    fi
+
+                else
+                    echo "$R Invalid Option!"
+                    sleep 1
+                    continue
+                fi
+    
+            else
+                echo "$R Invalid Option!"
+                sleep 1
+                continue
+            fi
+
+        else
+            echo
+            echo -e "$N Nothing here! Going Back!"
+            DEST="$PWD/"
+            sleep 2
+            continue
+        fi
+
+done
+    
+}
+
+
+set_DEST () {
+
+    banner
+
+    echo -e " Do you want to save backup here? "
+    echo
+    echo -e "$G 1. $1"
+    echo
+    echo -e "$N or in separate directory? "
+    echo
+    echo -e "$G 2. $1 \bTermux/$N"
+    echo
+    
+    stty echo
+    read -p " [1/2/Default=1]: " yon
+    stty -echo
+
+    case $yon in
+
+        [2]*) 
+            BACKUP_TMP="$1Termux/"
+            echo $BACKUP_TMP > $TERBR_PROP
+            banner
+            echo " Location preferences set!"
+            exit 0 ;;
+
+        *)
+            BACKUP_TMP="$1"
+            echo $BACKUP_TMP > $TERBR_PROP
+            banner
+            echo " Location preferences set!"
+            exit 0 ;;
+    esac
+
+
+}
+
+
+check_DEST () {
+
+    banner
+
+    if [ ! -f  $TERBR_PROP ]; then
+
+        echo -e " 1. Choose a new location."
+        echo
+        echo -e " 2. Choose Default location "
+        echo -e " [Default: /storage/emulated/0/]"
+        echo
+
+        stty echo
+        read -p " [1/2/Default=2]: " yon
+        stty -echo
+
+        case $yon in
+
+            [1]*)
+                get_DEST B ;;
+
+            *)
+                BACKUP_TMP="$DEFAULT_DEST"
+                echo $BACKUP_TMP > $TERBR_PROP
+                banner
+                echo " Location preferences set!"
+                return ;;
+        esac
+
+    else
+        return
+    fi
+
+}
+
+
+check_FILE () {
+
+    while true; do
+        
+        banner
+        
+        if [[ -f $TERBR_PROP && -s $TERBR_PROP ]]; then
+            read BACKUP_DEST < $TERBR_PROP
+        else
+            BACKUP_DEST="$DEFAULT_DEST"
+        fi
+
+        ls $BACKUP_DEST*.tar.gz &> /dev/null
+    
+        if [ $? -ne 0 ]; then
+
+            echo -e "$G $BACKUP_DEST \n"
+            echo -e "$R No Backup found!\n"
+            echo -e "$N Search Other location.\c"
+
+            stty echo
+            read -p " [y/n/Default=y]: " yon
+            stty -echo
+
+            case $yon in
+
+                [Nn]*)
+                    echo
+                    echo -e "$R Aborted! "
+                    sleep 1
+                    return 1 ;;
+
+                *)
+                    get_DEST R
+                    return 0 ;;
+            esac
+        else
+            return 0
+        fi
+    done
+}
+
+
+backup () {
+
+    banner
+
+    read BACKUP_TMP < $TERBR_PROP
+    
+    if [ ! -d $BACKUP_TMP ]; then
+            mkdir -p $BACKUP_TMP
+    fi
+
+    BACKUP_DEST="${BACKUP_TMP}termux_backup"
+
+    while [ -e $BACKUP_DEST.tar.gz ]; do
+
+        ((n++))
+        if [ $n -eq 1 ]; then
+
+            echo " A backup already exists, choose actions: "
+            stty echo
+            read -p " [y=keep both/d=overwrite previous/n=abort/Default=y]: " yon
+            stty -echo
+            echo
+            case $yon in
+                [Dd]* ) rm $BACKUP_DEST.tar.gz ;;
+                [Nn]* ) echo -e "$R Aborted!"; sleep 1; return 1 ;;
+                    * ) BACKUP_DEST+="_($n)" ;;
+            esac
+        else
+            unset BACKUP_DEST
+            BACKUP_DEST='/sdcard/termux_backup'
+            BACKUP_DEST+="_($n)"
+        fi
+    done
+
+    echo -e $Y" [*] Backing Up Files.............."
+    sleep 1 
+    echo -e $R" [!] It may take a while. Please wait...\r $A"
+    tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null 
+    [ $? -ne 0 ] && return 1
+    echo -e $Y" [!] Backing Up Files..............$G DONE"
+    echo -e $R" [!] It may take a while. Please wait..."
+    echo
+    echo -e $G" [!] Backup Done! "
+}
+
+restore () {
+
+    banner
+
+    read BACKUP_TMP < $TERBR_PROP
+    BACKUP_DEST="${BACKUP_TMP}termux_backup"
+
+    n=$(ls $BACKUP_DEST*.tar.gz | wc -l)
+
+    if [ $n -gt 1 ]; then
+
+        echo -e "$G Select backup: \n"
+        ls $BACKUP_DEST*.tar.gz | nl
+        echo -e "$N"
+        stty echo
+        read -p " [1-$n/0=Abort/Default=0]: " yon
+        stty -echo
+
+        echo
+
+        if [[ $yon -eq 1 && $yon =~ ^[0-9]+$ ]]; then
+            echo
+
+        elif [[ $yon -ne 0 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
+            ((yon--))
+            BACKUP_DEST+="_($yon)"
+
+        else
+            echo -e "$R Aborted!"
+            return 1
+        fi       
+    else
+        BACKUP_DEST=$(ls $BACKUP_DEST*.tar.gz)
+        BACKUP_DEST=${BACKUP_DEST/.tar.gz/}
+
+    fi
+   
+
+    stty echo
+    read -p " Restore $BACKUP_DEST.tar.gz [y/n/Default=y]: " yon
+    stty -echo
+
+    echo
+    case $yon in
+        [Nn]*)
+
+            echo -e "$R Aborted!"
+            return 1 ;;
+
+        *)
+            echo -e $Y" [*] Restoring Files..............."
+            sleep 1
+            echo -e $R" [!] It may take a while. Please wait...\r $A"
+
+            # tar -zxf $BACKUP_DEST.tar.gz usr home &> /dev/null
+            echo -e $Y" [!] Restoring Files...............$G DONE"
+            echo -e $R" [!] It may take a while. Please wait..."
+            echo
+            echo -e $G" [!] Restore Done! " ;;
+    esac
+}
+
+termux-setup-storage
+
+if [ ! -d "$HOME/.termux" ]; then
+    mkdir -p "$HOME/.termux"
+fi
+
+cd $BACKUP_SRC
+
+[ $# -eq 0 ] && help
+if [ ! $# == 0 ]; then
+
+	case $1 in
+		"-h" | "--help" )
+            help ;;
+
+		"-v" | "--version" )
+            version ;;
+
+		"-r" | "--restore" )
+            check_FILE
+            [ $? -eq 0 ] && restore ;; 
+
+		"-b" | "--backup" )
+            check_DEST
+            backup ;;
+
+        "-c" | "--change-dir" )
+            rm -f $TERBR_PROP
+            check_DEST ;;
+
+	    * )
+            echo  "Invalid option!"
+            echo -e "Try \"-h\" or \"--help\" for Help!"
+	esac
+fi
+exit
