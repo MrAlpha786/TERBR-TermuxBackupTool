@@ -25,7 +25,7 @@ or
 ```bash
 curl -O https://raw.githubusercontent.com/MrAlpha786/termux-backup-restore/master/terbr && chmod u+x terbr
 ```
-5.
+4.
 ```bash
 bash terbr
 ```
