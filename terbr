@@ -12,7 +12,7 @@
 #└────────────────────────────────────────────┘
 
 
-# trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
+trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
 stty -echo
 #colors
 R='\033[1;31m'
@@ -52,7 +52,7 @@ help () {
 
 version () {
 	
-    echo "terbr (Termux Backup/Restore tool) v2.0"
+    echo "terbr (Termux Backup/Restore tool) v2.1"
     echo "A tool to Backup and Restore Termux"
     echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
@@ -352,7 +352,7 @@ restore () {
             sleep 1
             echo -e $R" [!] It may take a while. Please wait...\r $A"
 
-            # tar -zxf $BACKUP_DEST.tar.gz usr home &> /dev/null
+            tar -zxf $BACKUP_DEST.tar.gz usr home &> /dev/null
             echo -e $Y" [!] Restoring Files...............$G DONE"
             echo -e $R" [!] It may take a while. Please wait..."
             echo
@@ -368,7 +368,7 @@ fi
 
 cd $BACKUP_SRC
 
-[ $# -eq 0 ] && help
+[ $# -eq 0 ] && check_DEST && help
 if [ ! $# == 0 ]; then
 
 	case $1 in
