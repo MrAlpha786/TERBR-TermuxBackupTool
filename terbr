@@ -52,7 +52,7 @@ help () {
 
 version () {
 	
-    echo "terbr (Termux Backup/Restore tool) v2.1"
+    echo "terbr (Termux Backup/Restore tool) v2.2"
     echo "A tool to Backup and Restore Termux"
     echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
@@ -287,6 +287,8 @@ backup () {
         fi
     done
 
+    echo -e "$G $BACKUP_DEST.tar.gz"
+    echo
     echo -e $Y" [*] Backing Up Files.............."
     sleep 1 
     echo -e $R" [!] It may take a while. Please wait...\r $A"
