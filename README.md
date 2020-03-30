@@ -2,7 +2,7 @@
 
 ### Created by [MrAlpha786](https://github.com/MrAlpha786)
 
-_Take backup and restore with just one command. Choose a directory to save backup and easily find them._
+_Backup Termux and Restore with just one command. Choose a directory to save backup and easily find them._
 
 ## Installation
 
