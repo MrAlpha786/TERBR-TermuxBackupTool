@@ -18,11 +18,11 @@ apt-get install wget curl tar -y
 ```
 3.
 ```bash
-wget https://raw.githubusercontent.com/MrAlpha786/termux-backup-restore/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
+wget https://raw.githubusercontent.com/MrAlpha786/TERBR/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
 ```
 or
 ```bash
-curl -O https://raw.githubusercontent.com/MrAlpha786/termux-backup-restore/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
+curl -O https://raw.githubusercontent.com/MrAlpha786/TERBR/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
 ```
 4.
 ```bash
