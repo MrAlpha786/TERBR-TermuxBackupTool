@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# TERBR v2.2 - Termux Backup/Restore Tool
+# TERBR v2.3 - Termux Backup/Restore Tool
 # Copyright (C) 2020  MrAlpha786
 #
 #  This program is free software: you can redistribute it 
@@ -69,7 +69,7 @@ help () {
 
 version () {
 	
-    echo "terbr (Termux Backup/Restore tool) v2.2"
+    echo "terbr (Termux Backup/Restore tool) v2.3"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -303,8 +303,7 @@ backup () {
                     * ) BACKUP_DEST+="_($n)" ;;
             esac
         else
-            unset BACKUP_DEST
-            BACKUP_DEST='/sdcard/termux_backup'
+            BACKUP_DEST="${BACKUP_TMP}termux_backup"
             BACKUP_DEST+="_($n)"
         fi
     done
@@ -326,8 +325,7 @@ restore () {
 
     banner
 
-    read BACKUP_TMP < $TERBR_PROP
-    BACKUP_DEST="${BACKUP_TMP}termux_backup"
+    read BACKUP_DEST < $TERBR_PROP
 
     n=$(ls $BACKUP_DEST*.tar.gz | wc -l)
 
@@ -342,12 +340,8 @@ restore () {
 
         echo
 
-        if [[ $yon -eq 1 && $yon =~ ^[0-9]+$ ]]; then
-            echo
-
-        elif [[ $yon -ne 0 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
-            ((yon--))
-            BACKUP_DEST+="_($yon)"
+        if [[ $yon -ge 1 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
+            BACKUP_DEST=$(ls $BACKUP_DEST*tar.gz | head -${yon} | tail -1)
 
         else
             echo -e "$R Aborted!"
@@ -355,13 +349,12 @@ restore () {
         fi       
     else
         BACKUP_DEST=$(ls $BACKUP_DEST*.tar.gz)
-        BACKUP_DEST=${BACKUP_DEST/.tar.gz/}
 
     fi
    
 
     stty echo
-    read -p " Restore $BACKUP_DEST.tar.gz [y/n/Default=y]: " yon
+    read -p " Restore $BACKUP_DEST [y/n/Default=y]: " yon
     stty -echo
 
     echo
@@ -376,7 +369,7 @@ restore () {
             sleep 1
             echo -e $R" [!] It may take a while. Please wait...\r $A"
 
-            tar -zxf $BACKUP_DEST.tar.gz usr home &> /dev/null
+            tar -zxf $BACKUP_DEST usr home &> /dev/null
             echo -e $Y" [!] Restoring Files...............$G DONE"
             echo -e $R" [!] It may take a while. Please wait..."
             echo
