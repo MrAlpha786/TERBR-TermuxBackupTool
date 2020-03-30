@@ -20,7 +20,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 * On first run it will ask to choose backup location
 * Minor bug fixes
 
-##v2.0
+## v2.0
 * Select custom directory for Backup
 * Select custom files to Restore
 * Some code optimization
