@@ -34,9 +34,9 @@ Y='\033[1;33m'
 N='\033[0m'
 UP='\u001b[3A'
 A='\u001b[2A'
-BACKUP_SRC='/data/data/com.termux/files'
-DEFAULT_DEST='/storage/emulated/0/'
-TERBR_PROP="$HOME/.termux/terbr.pref"
+readonly BACKUP_SRC='/data/data/com.termux/files'
+readonly DEFAULT_DEST='/storage/emulated/0/'
+readonly TERBR_PROP="$HOME/.termux/terbr.pref"
 BACKUP_DEST=""
 n=0
 
@@ -62,7 +62,7 @@ help () {
 
 version () {
 	
-    echo "terbr (Termux Backup/Restore tool) v2.3"
+    echo "terbr v2.4 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -74,7 +74,7 @@ version () {
 
 get_DEST () {
   
-    DEST='/storage/emulated/0/'
+    local DEST='/storage/emulated/0/'
 
     while true; do
         clear
@@ -82,16 +82,16 @@ get_DEST () {
         banner
 
         echo -e " Choose Directory: \n"
-        echo -e " (Place \"+\" in front to select directory.\ne.g.\"1+\")"
+        echo -e " (Place \"+\" in front to select directory e.g.\"1+\"\n  or only \"+\" to select current directory.)"
         echo
 
         dn=$(ls -F $DEST | grep / | wc -l)
 
-        if [ $dn -ne 0 ]; then
 
             cd $DEST
             echo -e "$G $PWD"
             echo
+            echo "     +  . "
             echo "     0  .."
             ls -F $DEST | grep / | nl
 
@@ -99,10 +99,9 @@ get_DEST () {
             read -p " Select[0-$dn]: " n
             stty -echo
 
-            if [[ $n -eq 0 && $n =~ ^[0-9]+$ ]]; then
-            
+            if [[ $n =~ ^[0-9]+$ && $n -eq 0 ]]; then            
                 if [ $PWD == "/storage/emulated/0" ]; then
-                    echo " Permission Denied!"
+                    echo -e "$R Permission Denied!"
                     sleep 1
                     continue
                 else
@@ -110,7 +109,7 @@ get_DEST () {
                     DEST="$PWD/"
                 fi
 
-            elif [[ $n -le $dn && $n =~ ^[0-9]+$ ]]; then
+            elif [[ $n =~ ^[0-9]+$ && $n -le $dn ]]; then
                 DEST+="$(ls -F | grep / | head -$n | tail -1)"
             elif [[ $n =~ ^[1-9]+\+$ ]]; then
                 
@@ -127,24 +126,27 @@ get_DEST () {
                     fi
 
                 else
-                    echo "$R Invalid Option!"
+                    echo -e "$R Invalid Option!"
                     sleep 1
                     continue
                 fi
     
+            elif [[ ${n} == "+" ]]; then
+                DEST="$PWD/"
+
+                if [ $1 == "R" ]; then
+                    echo $DEST > $TERBR_PROP
+                    return
+                                
+                else
+                    set_DEST $DEST
+                    return
+                fi
             else
-                echo "$R Invalid Option!"
+                echo -e "$R Invalid Option!"
                 sleep 1
                 continue
             fi
-
-        else
-            echo
-            echo -e "$N Nothing here! Going Back!"
-            DEST="$PWD/"
-            sleep 2
-            continue
-        fi
 
 done
     
