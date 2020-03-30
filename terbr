@@ -215,11 +215,11 @@ check_DEST () {
                 echo $BACKUP_TMP > $TERBR_PROP
                 banner
                 echo " Location preferences set!"
-                return ;;
+                return 0 ;;
         esac
 
     else
-        return
+        return 0
     fi
 
 }
