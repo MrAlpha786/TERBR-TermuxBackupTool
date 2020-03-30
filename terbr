@@ -23,11 +23,6 @@
 #
 # Changelog
 #
-# v2.0:  Select custom directory for backup
-#        Select custom files to restore
-#        Code Optimizations
-# v1.0:  Initial Build
-#
 
 trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
 stty -echo
