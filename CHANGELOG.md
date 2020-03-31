@@ -9,6 +9,11 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     Author: MrAlpha786     (github/MrAlpha786)
 
 ## Changelog
+## v2.8
+* Removed some prompt
+* Backup name now include date and time
+* Deleted a lot of unnecessary code 
+
 ## v2.4
 * Press "+" to select current directory
 * Incomplete restore path bug fix
