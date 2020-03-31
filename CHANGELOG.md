@@ -9,6 +9,11 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     Author: MrAlpha786     (github/MrAlpha786)
 
 ## Changelog
+## v2.4
+* Press "+" to select current directory
+* Incomplete restore path bug fix
+* restore location search error fix
+
 ## v2.3
 * Major Bug fix
 * Code optimized
