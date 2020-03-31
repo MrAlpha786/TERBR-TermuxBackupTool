@@ -61,7 +61,7 @@ help () {
 
 version () {
 	
-    echo "terbr v2.4 - Termux Backup/Restore Tool"
+    echo "terbr v2.8 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -172,16 +172,16 @@ set_DEST () {
     case $yon in
 
         [2]*) 
-            BACKUP_TMP="$1Termux/"
-            echo $BACKUP_TMP > $TERBR_PROP
-            banner
+            BACKUP_DEST="$1Termux/"
+            echo $BACKUP_DEST > $TERBR_PROP
+            echo
             echo " Location preferences set!"
             exit 0 ;;
 
         *)
-            BACKUP_TMP="$1"
-            echo $BACKUP_TMP > $TERBR_PROP
-            banner
+            BACKUP_DEST="$1"
+            echo $BACKUP_DEST > $TERBR_PROP
+            echo
             echo " Location preferences set!"
             exit 0 ;;
     esac
@@ -212,9 +212,9 @@ check_DEST () {
                 get_DEST ;;
 
             *)
-                BACKUP_TMP="$DEFAULT_DEST"
-                echo $BACKUP_TMP > $TERBR_PROP
-                banner
+                BACKUP_DEST="$DEFAULT_DEST"
+                echo $BACKUP_DEST > $TERBR_PROP
+                echo
                 echo " Location preferences set!"
                 return 0 ;;
         esac
@@ -244,7 +244,7 @@ check_FILE () {
 
             echo -e "$G $BACKUP_DEST \n"
             echo -e "$R No Backup found!\n"
-            echo -e "$N Search Other location.\c"
+            echo -e "$N Search Other directory.\c"
 
             stty echo
             read -p " [y/n/Default=y]: " yon
@@ -272,42 +272,22 @@ backup () {
 
     banner
 
-    read BACKUP_TMP < $TERBR_PROP
+    read BACKUP_DEST < $TERBR_PROP
     
-    if [ ! -d $BACKUP_TMP ]; then
-            mkdir -p $BACKUP_TMP
+    if [ ! -d $BACKUP_DEST ]; then
+            mkdir -p $BACKUP_DEST
     fi
 
-    BACKUP_DEST="${BACKUP_TMP}termux_backup"
-
-    while [ -e $BACKUP_DEST.tar.gz ]; do
-
-        ((n++))
-        if [ $n -eq 1 ]; then
-
-            echo " A backup already exists, choose actions: "
-            stty echo
-            read -p " [y=keep both/d=overwrite previous/n=abort/Default=y]: " yon
-            stty -echo
-            echo
-            case $yon in
-                [Dd]* ) rm $BACKUP_DEST.tar.gz ;;
-                [Nn]* ) echo -e "$R Aborted!"; sleep 1; return 1 ;;
-                    * ) BACKUP_DEST+="_($n)" ;;
-            esac
-        else
-            BACKUP_DEST="${BACKUP_TMP}termux_backup"
-            BACKUP_DEST+="_($n)"
-        fi
-    done
+    BACKUP_DEST+="termux_backup$(date +%m%d%Y_%H%M%S)"
 
     echo -e "$G $BACKUP_DEST.tar.gz"
     echo
     echo -e $Y" [*] Backing Up Files.............."
     sleep 1 
     echo -e $R" [!] It may take a while. Please wait...\r $A"
-    tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null 
-    [ $? -ne 0 ] && return 1
+    
+    tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null
+
     echo -e $Y" [!] Backing Up Files..............$G DONE"
     echo -e $R" [!] It may take a while. Please wait..."
     echo
@@ -320,54 +300,36 @@ restore () {
 
     read BACKUP_DEST < $TERBR_PROP
 
-    n=$(ls ${BACKUP_DEST} | grep .tar.gz | wc -l)
+    n=$(ls ${BACKUP_DEST}*.tar.gz | wc -l)
 
-    if [ $n -gt 1 ]; then
-
-        echo -e "$G Select backup: \n"
-        ls $BACKUP_DEST*.tar.gz | nl
-        echo -e "$N"
-        stty echo
-        read -p " [1-$n/0=Abort/Default=0]: " yon
-        stty -echo
-
-        echo
-
-        if [[ $yon -ge 1 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
-            BACKUP_DEST=$(ls $BACKUP_DEST*.tar.gz | head -${yon} | tail -1)
-
-        else
-            echo -e "$R Aborted!"
-            return 1
-        fi       
-    else
-        BACKUP_DEST=$(ls $BACKUP_DEST*.tar.gz)
-
-    fi
-   
-
+    echo -e "$G Select backup: \n"
+    ls -t ${BACKUP_DEST}*.tar.gz | nl
+    echo -e "$N"
     stty echo
-    read -p " Restore $BACKUP_DEST [y/n/Default=y]: " yon
+    read -p " [1-$n/0=Abort/Default=0]: " yon
     stty -echo
 
     echo
-    case $yon in
-        [Nn]*)
 
-            echo -e "$R Aborted!"
-            return 1 ;;
+    if [[ $yon -ge 1 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
+        BACKUP_DEST=$(ls -t ${BACKUP_DEST}*.tar.gz | head -${yon} | tail -1)
 
-        *)
-            echo -e $Y" [*] Restoring Files..............."
-            sleep 1
-            echo -e $R" [!] It may take a while. Please wait...\r $A"
+    else
+        echo -e "$R Aborted!"
+        return 1
+    fi       
+   
+    echo -e "$G $BACKUP_DEST"
+    echo
+    echo -e $Y" [*] Restoring Files..............."
+    sleep 1
+    echo -e $R" [!] It may take a while. Please wait...\r $A"
 
-            tar -zxf $BACKUP_DEST usr home &> /dev/null
-            echo -e $Y" [!] Restoring Files...............$G DONE"
-            echo -e $R" [!] It may take a while. Please wait..."
-            echo
-            echo -e $G" [!] Restore Done! " ;;
-    esac
+    tar -zxf $BACKUP_DEST usr home &> /dev/null
+    echo -e $Y" [!] Restoring Files...............$G DONE"
+    echo -e $R" [!] It may take a while. Please wait..."
+    echo
+    echo -e $G" [!] Restore Done! "
 }
 
 termux-setup-storage
