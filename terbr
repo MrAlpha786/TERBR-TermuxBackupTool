@@ -21,7 +21,6 @@
 #
 # Author: MrAlpha786     (github/MrAlpha786)
 #
-
 trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
 stty -echo
 #colors
@@ -74,7 +73,7 @@ version () {
 
 get_DEST () {
   
-    local DEST='/storage/emulated/0/'
+    local DEST="/storage/emulated/0/"
 
     while true; do
         clear
@@ -136,11 +135,11 @@ get_DEST () {
 
                 if [ $1 == "R" ]; then
                     echo $DEST > $TERBR_PROP
-                    return
+                    return 0
                                 
                 else
                     set_DEST $DEST
-                    return
+                    return 0
                 fi
             else
                 echo -e "$R Invalid Option!"
@@ -210,7 +209,7 @@ check_DEST () {
         case $yon in
 
             [1]*)
-                get_DEST B ;;
+                get_DEST ;;
 
             *)
                 BACKUP_TMP="$DEFAULT_DEST"
@@ -239,9 +238,9 @@ check_FILE () {
             BACKUP_DEST="$DEFAULT_DEST"
         fi
 
-        ls $BACKUP_DEST*.tar.gz &> /dev/null
+        n=$(ls ${BACKUP_DEST} | grep .tar.gz | wc -l)
     
-        if [ $? -ne 0 ]; then
+        if [ $n -eq 0 ]; then
 
             echo -e "$G $BACKUP_DEST \n"
             echo -e "$R No Backup found!\n"
@@ -260,8 +259,7 @@ check_FILE () {
                     return 1 ;;
 
                 *)
-                    get_DEST R
-                    return 0 ;;
+                    get_DEST R ;;
             esac
         else
             return 0
@@ -322,7 +320,7 @@ restore () {
 
     read BACKUP_DEST < $TERBR_PROP
 
-    n=$(ls $BACKUP_DEST*.tar.gz | wc -l)
+    n=$(ls ${BACKUP_DEST} | grep .tar.gz | wc -l)
 
     if [ $n -gt 1 ]; then
 
@@ -336,7 +334,7 @@ restore () {
         echo
 
         if [[ $yon -ge 1 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
-            BACKUP_DEST=$(ls $BACKUP_DEST*tar.gz | head -${yon} | tail -1)
+            BACKUP_DEST=$(ls $BACKUP_DEST*.tar.gz | head -${yon} | tail -1)
 
         else
             echo -e "$R Aborted!"
