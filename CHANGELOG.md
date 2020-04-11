@@ -9,6 +9,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     Author: MrAlpha786     (github/MrAlpha786)
 
 ## Changelog
+## v3.0
+* Use pigz to compress or decompress, if pigz install
+* pigz can hugely reduce backup/restore time (multithreading)
+
 ## v2.8
 * Removed some prompt
 * Backup name now include date and time

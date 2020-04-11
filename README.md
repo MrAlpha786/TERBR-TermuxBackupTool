@@ -17,7 +17,7 @@ apt-get update && apt-get upgrade -y
 apt-get install wget curl pigz tar -y
 ```
 
-Install __pigz__ to reduce time in backup and restore
+Install __pigz__(recommended) to reduce time in backup and restore
 
 3.
 ```bash
