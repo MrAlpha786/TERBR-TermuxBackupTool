@@ -14,7 +14,9 @@ apt-get update && apt-get upgrade -y
 ```
 2.
 ```bash
-apt-get install wget curl tar -y
+apt-get install wget curl pigz tar -y
+
+__Install pigz to reduce time in backup and restore__
 ```
 3.
 ```bash
