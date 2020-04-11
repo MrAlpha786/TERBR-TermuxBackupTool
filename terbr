@@ -286,7 +286,7 @@ backup () {
     sleep 1 
     echo -e $R" [!] It may take a while. Please wait...\r $A"
     
-    tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null
+    tar -I pigz -cf $BACKUP_DEST.tar.gz usr home &> /dev/null
 
     echo -e $Y" [!] Backing Up Files..............$G DONE"
     echo -e $R" [!] It may take a while. Please wait..."
@@ -325,7 +325,7 @@ restore () {
     sleep 1
     echo -e $R" [!] It may take a while. Please wait...\r $A"
 
-    tar -zxf $BACKUP_DEST usr home &> /dev/null
+    tar -I pigz -xf $BACKUP_DEST usr home &> /dev/null
     echo -e $Y" [!] Restoring Files...............$G DONE"
     echo -e $R" [!] It may take a while. Please wait..."
     echo
