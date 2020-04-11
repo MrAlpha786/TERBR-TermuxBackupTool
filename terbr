@@ -64,7 +64,7 @@ version () {
     echo "terbr v3.0 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
-    echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+    echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
     echo
     echo "This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
     echo
