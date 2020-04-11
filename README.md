@@ -15,9 +15,10 @@ apt-get update && apt-get upgrade -y
 2.
 ```bash
 apt-get install wget curl pigz tar -y
-
-__Install pigz to reduce time in backup and restore__
 ```
+
+Install __pigz__ to reduce time in backup and restore
+
 3.
 ```bash
 wget https://raw.githubusercontent.com/MrAlpha786/TERBR-TermuxBackupTool/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
