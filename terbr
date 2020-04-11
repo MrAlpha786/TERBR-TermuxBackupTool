@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# TERBR v2.3 - Termux Backup/Restore Tool
+# TERBR v3.0 - Termux Backup/Restore Tool
 # Copyright (C) 2020  MrAlpha786
 #
 #  This program is free software: you can redistribute it 
@@ -61,7 +61,7 @@ help () {
 
 version () {
 	
-    echo "terbr v2.8 - Termux Backup/Restore Tool"
+    echo "terbr v3.0 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3.0 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -286,8 +286,11 @@ backup () {
     sleep 1 
     echo -e $R" [!] It may take a while. Please wait...\r $A"
     
-    tar -I pigz -cf $BACKUP_DEST.tar.gz usr home &> /dev/null
-
+    if which pigz &> /dev/null; then
+        tar -I pigz -cf $BACKUP_DEST.tar.gz usr home &> /dev/null
+    else
+        tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null
+    fi
     echo -e $Y" [!] Backing Up Files..............$G DONE"
     echo -e $R" [!] It may take a while. Please wait..."
     echo
@@ -325,7 +328,12 @@ restore () {
     sleep 1
     echo -e $R" [!] It may take a while. Please wait...\r $A"
 
-    tar -I pigz -xf $BACKUP_DEST usr home &> /dev/null
+    if which pigz &> /dev/null; then
+        tar -I pigz -xf $BACKUP_DEST usr home &> /dev/null
+    else
+        tar -zxf $BACKUP_DEST usr home &> /dev/null
+    fi
+
     echo -e $Y" [!] Restoring Files...............$G DONE"
     echo -e $R" [!] It may take a while. Please wait..."
     echo
