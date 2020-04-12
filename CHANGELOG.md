@@ -10,8 +10,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ## Changelog
 ## v3.0
-* Use pigz to compress or decompress, if pigz install
-* pigz can hugely reduce backup/restore time (multithreading)
+* Use pigz to compress or decompress, if pigz is installed
+* Using pigz,hugely reduced backup/restore time due to multithreading.
 
 ## v2.8
 * Removed some prompt
