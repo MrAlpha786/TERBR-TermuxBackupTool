@@ -35,7 +35,7 @@ curl -O https://raw.githubusercontent.com/MrAlpha786/TERBR-TermuxBackupTool/mast
 | __Command__ | __Description__ |
 | :-----: | :-----: |
 | `terbr -h` or `terbr --help` | Print Help and exit |
-| `terbr -v` or `terbr --version` | Print Version |
+| `terbr -v` or `terbr --version` | Print Version and exit |
 | `terbr -b` or `terbr --backup` | Take Backup |
 | `terbr -r` or `terbr --restore` | Restore Backup |
 | `terbr -c` or `terbr --change-dir` | Change Backup Directory |
