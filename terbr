@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# TERBR v3.0 - Termux Backup/Restore Tool
+# TERBR 3.1 - Termux Backup/Restore Tool
 # Copyright (C) 2020  MrAlpha786
 #
 #  This program is free software: you can redistribute it 
@@ -61,7 +61,7 @@ help () {
 
 version () {
 	
-    echo "terbr v3.0 - Termux Backup/Restore Tool"
+    echo "terbr 3.1 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -192,36 +192,30 @@ set_DEST () {
 
 check_DEST () {
 
-    banner
+  banner
 
-    if [ ! -f  $TERBR_PROP ]; then
+  echo -e " 1. Choose a new location."
+  echo
+  echo -e " 2. Choose Default location "
+  echo -e " [Default: /storage/emulated/0/]"
+  echo
 
-        echo -e " 1. Choose a new location."
-        echo
-        echo -e " 2. Choose Default location "
-        echo -e " [Default: /storage/emulated/0/]"
-        echo
+  stty echo
+  read -p " [1/2/Default=2]: " yon
+  stty -echo
 
-        stty echo
-        read -p " [1/2/Default=2]: " yon
-        stty -echo
+  case $yon in
 
-        case $yon in
+      [1]*)
+          get_DEST ;;
 
-            [1]*)
-                get_DEST ;;
-
-            *)
-                BACKUP_DEST="$DEFAULT_DEST"
-                echo $BACKUP_DEST > $TERBR_PROP
-                echo
-                echo " Location preferences set!"
-                return 0 ;;
-        esac
-
-    else
-        return 0
-    fi
+      *)
+          BACKUP_DEST="$DEFAULT_DEST"
+          echo $BACKUP_DEST > $TERBR_PROP
+          echo
+          echo " Location preferences set!"
+          return 0 ;;
+  esac
 
 }
 
@@ -272,6 +266,8 @@ backup () {
 
     banner
 
+    cd $BACKUP_SRC
+
     read BACKUP_DEST < $TERBR_PROP
     
     if [ ! -d $BACKUP_DEST ]; then
@@ -300,6 +296,8 @@ backup () {
 restore () {
 
     banner
+
+    cd $BACKUP_SRC
 
     read BACKUP_DEST < $TERBR_PROP
 
@@ -340,13 +338,12 @@ restore () {
     echo -e $G" [!] Restore Done! "
 }
 
-termux-setup-storage
 
 if [ ! -d "$HOME/.termux" ]; then
     mkdir -p "$HOME/.termux"
 fi
 
-cd $BACKUP_SRC
+termux-setup-storage
 
 [ $# -eq 0 ] && check_DEST && help
 if [ ! $# == 0 ]; then
@@ -363,7 +360,7 @@ if [ ! $# == 0 ]; then
             [ $? -eq 0 ] && restore ;; 
 
 		"-b" | "--backup" )
-            check_DEST
+            [[ ! -f  $TERBR_PROP ]] && check_DEST
             backup ;;
 
         "-c" | "--change-dir" )
