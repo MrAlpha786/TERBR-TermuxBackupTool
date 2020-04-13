@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# TERBR 3.1 - Termux Backup/Restore Tool
+# TERBR v3.2 - Termux Backup/Restore Tool
 # Copyright (C) 2020  MrAlpha786
 #
 #  This program is free software: you can redistribute it 
@@ -61,7 +61,7 @@ help () {
 
 version () {
 	
-    echo "terbr 3.1 - Termux Backup/Restore Tool"
+    echo "terbr v3.2 - Termux Backup/Restore Tool"
     echo "A tool to Backup and Restore Termux"
     echo -e "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
@@ -345,7 +345,7 @@ fi
 
 termux-setup-storage
 
-[ $# -eq 0 ] && check_DEST && help
+[ $# -eq 0 ] && help
 if [ ! $# == 0 ]; then
 
 	case $1 in

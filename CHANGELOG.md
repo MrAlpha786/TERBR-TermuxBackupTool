@@ -9,9 +9,13 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     Author: MrAlpha786     (github/MrAlpha786)
 
 ## Changelog
+## v3.2
+* Restore in wrong directory bug fixed
+* Command without any arguments prints help.
+
 ## v3.0
 * Use pigz to compress or decompress, if pigz is installed
-* Using pigz,hugely reduced backup/restore time due to multithreading.
+* Using pigz,hugely reduced backup/restore time due to its multithreading capability.
 
 ## v2.8
 * Removed some prompt
