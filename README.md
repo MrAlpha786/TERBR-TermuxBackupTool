@@ -29,8 +29,6 @@ curl -O https://raw.githubusercontent.com/MrAlpha786/TERBR-TermuxBackupTool/mast
 ```
 ## Usage
 
-***On first run it will ask you to choose a Backup destination. You can choose a custom directory or use the default.*** 
-
 
 | __Command__ | __Description__ |
 | :-----: | :-----: |
