@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# TERBR v3.2 - Termux Backup/Restore Tool
+# TERBR v4 - Termux Backup/Restore Tool
 # Copyright (C) 2020  MrAlpha786
 #
-#  This program is free software: you can redistribute it 
+#  This program is free software: you can redistribute it
 # and/ or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation either
 # version 3 of the License, or (at your option) any later
@@ -15,55 +15,75 @@
 # PURPOSE.  See the GNU General Public License for more
 # details.
 #
-#  You should have received a copy of the GNU General 
+#  You should have received a copy of the GNU General
 # Public License along with this program.  If not, see
 # <https://www.gnu.org/licenses/>.
 #
 # Author: MrAlpha786     (github/MrAlpha786)
 #
-trap 'rm -f "$BACKUP_DEST.tar.gz"' 1 2 3 15 20
-stty -echo
-#colors
+#colors and other variable
 R='\033[1;31m'
 B='\033[1;34m'
 C='\033[0;36m'
 G='\033[1;32m'
-W='\033[1;37m'
 Y='\033[1;33m'
 N='\033[0m'
-UP='\u001b[3A'
-A='\u001b[2A'
+TERBR_COMMAND='tar'
+TERBR_FILE="/storage/emulated/0/termux_backup$(date +%m%d%Y_%H%M%S).bak"
 readonly BACKUP_SRC='/data/data/com.termux/files'
-readonly DEFAULT_DEST='/storage/emulated/0/'
-readonly TERBR_PROP="$HOME/.termux/terbr.pref"
-BACKUP_DEST=""
-n=0
 
-banner () {
-    clear
+function banner() {
     echo
-    echo -e $B" ┌───────────────────────┐ "
-    echo -e $B" │$C         TERBR         $B│"
-    echo -e $B" └───────────────────────┘ "
-    echo -e $R"  -> MrAlpha786 $N"
+    echo -e "$B ┌───────────────────────┐"
+    echo -e "$B │$C ▀█▀ █▀▀ █▀▀▄ █▀▄ █▀▀▄ $B│"
+    echo -e "$B │$C ─█─ █▀▀ █▐█▀ █▀█ █▐█▀ $B│"
+    echo -e "$B │$C ─▀─ ▀▀▀ ▀─▀▀ ▀▀─ ▀─▀▀ $B│"
+    echo -e "$B └───────────────────────┘"
+    echo -e "$G  -> Author: MrAlpha786 $N"
     echo
 }
 
-help () {
+function backup() {
+    cd $BACKUP_SRC
 
-	echo -e "usage: terbr [option] "
-	echo -e "   -h  --help         Print Help and exit"
-	echo -e "   -v  --version      Print Version"
-	echo -e "   -b  --backup       Take Backup"
-	echo -e "   -r  --restore      Restore Backup"
-    echo -e "   -c  --change-dir   Change Backup Directory"
+    echo -e "${G}Saving to '${TERBR_FILE}'\n"
+    echo -e "${Y}[*] Backing Up Files.............."
+    sleep 1
+    echo -e "${R}[!] It may take a while. Please wait...${G}\n"
+
+    ${TERBR_COMMAND} ${TERBR_FILE} usr home
+
+    echo -e "${G}[!] Backup Done! "
 }
 
-version () {
-	
-    echo "terbr v3.2 - Termux Backup/Restore Tool"
+# function restore () {
+#     cd $BACKUP_SRC
+
+#     echo -e "${G}Restoring from '${TERBR_FILE}'\n"
+#     echo -e "${Y}[*] Restoring Files..............."
+#     sleep 1
+#     echo -e "${R}[!] It may take a while. Please wait...${G}\n"
+
+#     # ${TERBR_COMMAND} ${TERBR_FILE} usr home
+#     echo ${TERBR_FILE}
+
+#     echo -e "${G} [!] Restore Done! "
+# }
+
+function usage() {
+    echo -e "Usage: $(basename $0) -[hvVbr] "
+    echo -e "Create Termux Backup and Restore it.\n"
+	echo -e "      -b   Take backup"
+	echo -e "      -r   Restore backup"
+	echo -e "      -V   Verbose output"
+	echo -e "      -h   Print usage"
+	echo -e "      -v   Print version"
+}
+
+function version() {
+    echo "Terbr v4 - Termux Backup and Restore Tool"
     echo "A tool to Backup and Restore Termux"
-    echo -e "Copyright (C) 2020  MrAlpha786"
+    echo "Copyright (C) 2020  MrAlpha786"
     echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
     echo
     echo "This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
@@ -71,305 +91,69 @@ version () {
     echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
 
-get_DEST () {
-  
-    local DEST="/storage/emulated/0/"
-
-    while true; do
-        clear
-        
-        banner
-
-        echo -e " Choose Directory: \n"
-        echo -e " (Place \"+\" in front to select directory e.g.\"1+\"\n  or only \"+\" to select current directory.)"
-        echo
-
-        dn=$(ls -F $DEST | grep / | wc -l)
-
-
-            cd $DEST
-            echo -e "$G $PWD"
-            echo
-            echo "     +  . "
-            echo "     0  .."
-            ls -F $DEST | grep / | nl
-
-            stty echo
-            read -p " Select[0-$dn]: " n
-            stty -echo
-
-            if [[ $n =~ ^[0-9]+$ && $n -eq 0 ]]; then            
-                if [ $PWD == "/storage/emulated/0" ]; then
-                    echo -e "$R Permission Denied!"
-                    sleep 1
-                    continue
-                else
-                    cd ..
-                    DEST="$PWD/"
-                fi
-
-            elif [[ $n =~ ^[0-9]+$ && $n -le $dn ]]; then
-                DEST+="$(ls -F | grep / | head -$n | tail -1)"
-            elif [[ $n =~ ^[1-9]+\+$ ]]; then
-                
-                n=${n/\+/}
-                if [[ $n -ge 1 && $n -lt $dn ]]; then
-                    DEST+="$(ls -F | grep / | head -$n | tail -1)"
-                    if [ $1 == "R" ]; then
-                        echo $DEST > $TERBR_PROP
-                        return
-                                
-                    else
-                        set_DEST $DEST
-                        return
-                    fi
-
-                else
-                    echo -e "$R Invalid Option!"
-                    sleep 1
-                    continue
-                fi
-    
-            elif [[ ${n} == "+" ]]; then
-                DEST="$PWD/"
-
-                if [ $1 == "R" ]; then
-                    echo $DEST > $TERBR_PROP
-                    return 0
-                                
-                else
-                    set_DEST $DEST
-                    return 0
-                fi
-            else
-                echo -e "$R Invalid Option!"
-                sleep 1
-                continue
-            fi
-
-done
-    
+# Cleanup on unexpected error
+function error_exit() {
+    SIGNAL=$?
+    rm -f ${TERBR_FILE}
+    exit ${SIGNAL}
 }
 
+# Trap signals
+trap 'error_exit' 1 2 3 15 20
 
-set_DEST () {
+while getopts ':hvVbr' arg; do
+	case $arg in
+		b) unset TERBR_RESTORE; TERBR_BACKUP=True
+            ;;
 
-    banner
+        r) unset TERBR_BACKUP; TERBR_RESTORE=True;
+            ;;
 
-    echo -e " Do you want to save backup here? "
-    echo
-    echo -e "$G 1. $1"
-    echo
-    echo -e "$N or in separate directory? "
-    echo
-    echo -e "$G 2. $1 \bTermux/$N"
-    echo
-    
-    stty echo
-    read -p " [1/2/Default=1]: " yon
-    stty -echo
+		V) TERBR_VERBOSE=True
+            ;;
 
-    case $yon in
+		h) usage; exit
+            ;;
 
-        [2]*) 
-            BACKUP_DEST="$1Termux/"
-            echo $BACKUP_DEST > $TERBR_PROP
-            echo
-            echo " Location preferences set!"
-            exit 0 ;;
+		v) version; exit
+            ;;
 
-        *)
-            BACKUP_DEST="$1"
-            echo $BACKUP_DEST > $TERBR_PROP
-            echo
-            echo " Location preferences set!"
-            exit 0 ;;
-    esac
-
-
-}
-
-
-check_DEST () {
-
-  banner
-
-  echo -e " 1. Choose a new location."
-  echo
-  echo -e " 2. Choose Default location "
-  echo -e " [Default: /storage/emulated/0/]"
-  echo
-
-  stty echo
-  read -p " [1/2/Default=2]: " yon
-  stty -echo
-
-  case $yon in
-
-      [1]*)
-          get_DEST ;;
-
-      *)
-          BACKUP_DEST="$DEFAULT_DEST"
-          echo $BACKUP_DEST > $TERBR_PROP
-          echo
-          echo " Location preferences set!"
-          return 0 ;;
-  esac
-
-}
-
-
-check_FILE () {
-
-    while true; do
-        
-        banner
-        
-        if [[ -f $TERBR_PROP && -s $TERBR_PROP ]]; then
-            read BACKUP_DEST < $TERBR_PROP
-        else
-            BACKUP_DEST="$DEFAULT_DEST"
-        fi
-
-        n=$(ls ${BACKUP_DEST} | grep .tar.gz | wc -l)
-    
-        if [ $n -eq 0 ]; then
-
-            echo -e "$G $BACKUP_DEST \n"
-            echo -e "$R No Backup found!\n"
-            echo -e "$N Search Other directory.\c"
-
-            stty echo
-            read -p " [y/n/Default=y]: " yon
-            stty -echo
-
-            case $yon in
-
-                [Nn]*)
-                    echo
-                    echo -e "$R Aborted! "
-                    sleep 1
-                    return 1 ;;
-
-                *)
-                    get_DEST R ;;
-            esac
-        else
-            return 0
-        fi
-    done
-}
-
-
-backup () {
-
-    banner
-
-    cd $BACKUP_SRC
-
-    read BACKUP_DEST < $TERBR_PROP
-    
-    if [ ! -d $BACKUP_DEST ]; then
-            mkdir -p $BACKUP_DEST
-    fi
-
-    BACKUP_DEST+="termux_backup$(date +%m%d%Y_%H%M%S)"
-
-    echo -e "$G $BACKUP_DEST.tar.gz"
-    echo
-    echo -e $Y" [*] Backing Up Files.............."
-    sleep 1 
-    echo -e $R" [!] It may take a while. Please wait...\r $A"
-    
-    if which pigz &> /dev/null; then
-        tar -I pigz -cf $BACKUP_DEST.tar.gz usr home &> /dev/null
-    else
-        tar -zcf $BACKUP_DEST.tar.gz usr home &> /dev/null
-    fi
-    echo -e $Y" [!] Backing Up Files..............$G DONE"
-    echo -e $R" [!] It may take a while. Please wait..."
-    echo
-    echo -e $G" [!] Backup Done! "
-}
-
-restore () {
-
-    banner
-
-    cd $BACKUP_SRC
-
-    read BACKUP_DEST < $TERBR_PROP
-
-    n=$(ls ${BACKUP_DEST}*.tar.gz | wc -l)
-
-    echo -e "$G Select backup: \n"
-    ls -t ${BACKUP_DEST}*.tar.gz | nl
-    echo -e "$N"
-    stty echo
-    read -p " [1-$n/0=Abort/Default=0]: " yon
-    stty -echo
-
-    echo
-
-    if [[ $yon -ge 1 && $yon -le $n && $yon =~ ^[0-9]+$  ]]; then
-        BACKUP_DEST=$(ls -t ${BACKUP_DEST}*.tar.gz | head -${yon} | tail -1)
-
-    else
-        echo -e "$R Aborted!"
-        return 1
-    fi       
-   
-    echo -e "$G $BACKUP_DEST"
-    echo
-    echo -e $Y" [*] Restoring Files..............."
-    sleep 1
-    echo -e $R" [!] It may take a while. Please wait...\r $A"
-
-    if which pigz &> /dev/null; then
-        tar -I pigz -xf $BACKUP_DEST usr home &> /dev/null
-    else
-        tar -zxf $BACKUP_DEST usr home &> /dev/null
-    fi
-
-    echo -e $Y" [!] Restoring Files...............$G DONE"
-    echo -e $R" [!] It may take a while. Please wait..."
-    echo
-    echo -e $G" [!] Restore Done! "
-}
-
-
-if [ ! -d "$HOME/.termux" ]; then
-    mkdir -p "$HOME/.termux"
-fi
-
-termux-setup-storage
-
-[ $# -eq 0 ] && help
-if [ ! $# == 0 ]; then
-
-	case $1 in
-		"-h" | "--help" )
-            help ;;
-
-		"-v" | "--version" )
-            version ;;
-
-		"-r" | "--restore" )
-            check_FILE
-            [ $? -eq 0 ] && restore ;; 
-
-		"-b" | "--backup" )
-            [[ ! -f  $TERBR_PROP ]] && check_DEST
-            backup ;;
-
-        "-c" | "--change-dir" )
-            rm -f $TERBR_PROP
-            check_DEST ;;
-
-	    * )
-            echo  "Invalid option!"
-            echo -e "Try \"-h\" or \"--help\" for Help!"
+        ?) echo "Invalid option -${OPTARG}" >&2
+            usage >&2; exit 1
+            ;;
 	esac
+done
+
+# Show usage if no option is provided
+if [ ${OPTIND} -eq 1 ]; then
+    usage >&2; exit 1
 fi
-exit
+
+# Check Storage Permission
+if [ ! -w ${DEFAULT_DEST} ]; then
+    termux-setup-storage
+fi
+
+# Check if pigz is installed
+if type -p pigz &> /dev/null; then
+    TERBR_COMMAND+=' -I pigz'
+else
+    TERBR_COMMAND+=' -z'
+fi
+
+# Enable Verbose mode
+if [ "${TERBR_VERBOSE}" == True ]; then
+    TERBR_COMMAND+=' -v'
+fi
+
+# Backup
+if [ "${TERBR_BACKUP}" == True ]; then
+    TERBR_COMMAND+=' -cf'
+    backup
+fi
+
+# Restore
+if [ "${TERBR_RESTORE}" == True ]; then
+    TERBR_COMMAND+=' -xf'
+    # restore
+fi
