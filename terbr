@@ -51,8 +51,10 @@ function backup() {
     sleep 1
     echo -e "${R}[!] It may take a while. Please wait...${G}\n"
 
+    termux-wake-lock # So that the screen doesn't sleep
     ${TERBR_COMMAND} ${TERBR_FILE} usr home
 
+    termux-wake-unlock # Exit wakelock
     echo -e "${G}[!] Backup Done! "
 }
 
@@ -64,9 +66,11 @@ function backup() {
 #     sleep 1
 #     echo -e "${R}[!] It may take a while. Please wait...${G}\n"
 
+      # termux-wake-lock # So that the screen doesn't sleep
 #     # ${TERBR_COMMAND} ${TERBR_FILE} usr home
 #     echo ${TERBR_FILE}
 
+#     termux-wake-unlock # Exit wakelock
 #     echo -e "${G} [!] Restore Done! "
 # }
 
