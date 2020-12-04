@@ -95,6 +95,7 @@ function version() {
 function error_exit() {
     SIGNAL=$?
     rm -f ${TERBR_FILE}
+    termux-wake-unlock
     exit ${SIGNAL}
 }
 
@@ -106,7 +107,7 @@ while getopts ':hvVbr' arg; do
 		b) unset TERBR_RESTORE; TERBR_BACKUP=True
             ;;
 
-        r) unset TERBR_BACKUP; TERBR_RESTORE=True;
+                r) unset TERBR_BACKUP; TERBR_RESTORE=True;
             ;;
 
 		V) TERBR_VERBOSE=True
@@ -138,6 +139,7 @@ fi
 if type -p pigz &> /dev/null; then
     TERBR_COMMAND+=' -I pigz'
 else
+    termux-wake-lock
     TERBR_COMMAND+=' -z'
 fi
 
@@ -150,6 +152,7 @@ fi
 if [ "${TERBR_BACKUP}" == True ]; then
     TERBR_COMMAND+=' -cf'
     backup
+    termux-wake-unlock
 fi
 
 # Restore

@@ -9,6 +9,9 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     Author: MrAlpha786     (github/MrAlpha786)
 
 ## Changelog
+## v4.0
+* add stuff here
+
 ## v3.2
 * Restore in wrong directory bug fixed
 * Command without any arguments prints help.
