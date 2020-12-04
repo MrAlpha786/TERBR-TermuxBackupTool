@@ -95,8 +95,8 @@ function version() {
 function error_exit() {
     SIGNAL=$?
     rm -f ${TERBR_FILE}
-    exit ${SIGNAL}
     termux-wake-unlock
+    exit ${SIGNAL}
 }
 
 # Trap signals
