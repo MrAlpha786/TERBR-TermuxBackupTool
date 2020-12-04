@@ -155,7 +155,6 @@ fi
 if [ "${TERBR_BACKUP}" == True ]; then
     TERBR_COMMAND+=' -cf'
     backup
-    termux-wake-unlock
 fi
 
 # Check if file to restore exists.
@@ -168,5 +167,7 @@ fi
 if [ "${TERBR_RESTORE}" == True ]; then
     TERBR_COMMAND+=' -xf'
     restore
-    termux-wake-unlock
 fi
+
+termux-wake-unlock
+exit 0
