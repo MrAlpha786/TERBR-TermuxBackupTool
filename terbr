@@ -51,10 +51,8 @@ function backup() {
     sleep 1
     echo -e "${R}[!] It may take a while. Please wait...${G}\n"
 
-    termux-wake-lock # So that the screen doesn't sleep
     ${TERBR_COMMAND} ${TERBR_FILE} usr home
 
-    termux-wake-unlock # Exit wakelock
     echo -e "${G}[!] Backup Done! "
 }
 
@@ -66,11 +64,9 @@ function backup() {
 #     sleep 1
 #     echo -e "${R}[!] It may take a while. Please wait...${G}\n"
 
-#     termux-wake-lock # So that the screen doesn't sleep
 #     # ${TERBR_COMMAND} ${TERBR_FILE} usr home
 #     echo ${TERBR_FILE}
 
-#     termux-wake-unlock # Exit wakelock
 #     echo -e "${G} [!] Restore Done! "
 # }
 
@@ -100,6 +96,7 @@ function error_exit() {
     SIGNAL=$?
     rm -f ${TERBR_FILE}
     exit ${SIGNAL}
+    termux-wake-unlock
 }
 
 # Trap signals
@@ -110,7 +107,7 @@ while getopts ':hvVbr' arg; do
 		b) unset TERBR_RESTORE; TERBR_BACKUP=True
             ;;
 
-        r) unset TERBR_BACKUP; TERBR_RESTORE=True;
+                r) unset TERBR_BACKUP; TERBR_RESTORE=True;
             ;;
 
 		V) TERBR_VERBOSE=True
@@ -142,6 +139,7 @@ fi
 if type -p pigz &> /dev/null; then
     TERBR_COMMAND+=' -I pigz'
 else
+    termux-wake-lock
     TERBR_COMMAND+=' -z'
 fi
 
@@ -154,6 +152,7 @@ fi
 if [ "${TERBR_BACKUP}" == True ]; then
     TERBR_COMMAND+=' -cf'
     backup
+    termux-wake-unlock
 fi
 
 # Restore
