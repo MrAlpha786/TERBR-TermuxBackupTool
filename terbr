@@ -33,140 +33,125 @@ TERBR_BACKUP_FILE="/storage/emulated/0/termux_backup$(date +%m%d%Y_%H%M%S).bak"
 readonly BACKUP_SRC='/data/data/com.termux/files'
 
 function banner() {
-    echo
-    echo -e "$B ┌───────────────────────┐"
-    echo -e "$B │$C ▀█▀ █▀▀ █▀▀▄ █▀▄ █▀▀▄ $B│"
-    echo -e "$B │$C ─█─ █▀▀ █▐█▀ █▀█ █▐█▀ $B│"
-    echo -e "$B │$C ─▀─ ▀▀▀ ▀─▀▀ ▀▀─ ▀─▀▀ $B│"
-    echo -e "$B └───────────────────────┘"
-    echo -e "$G  -> Author: MrAlpha786 $N"
-    echo
+  echo
+  echo -e "$B ┌───────────────────────┐"
+  echo -e "$B │$C ▀█▀ █▀▀ █▀▀▄ █▀▄ █▀▀▄ $B│"
+  echo -e "$B │$C ─█─ █▀▀ █▐█▀ █▀█ █▐█▀ $B│"
+  echo -e "$B │$C ─▀─ ▀▀▀ ▀─▀▀ ▀▀─ ▀─▀▀ $B│"
+  echo -e "$B └───────────────────────┘"
+  echo -e "$G  -> Author: MrAlpha786 $N"
+  echo
 }
 
 function backup() {
-    cd $BACKUP_SRC
+  cd $BACKUP_SRC
 
-    echo -e "${G}Saving to '${TERBR_BACKUP_FILE}'\n"
-    echo -e "${Y}[*] Backing Up Files.............."
-    sleep 1
-    echo -e "${R}[!] It may take a while. Please wait...\n"
+  echo -e "${G}Saving to '${TERBR_BACKUP_FILE}'\n"
+  echo -e "${Y}[*] Backing Up Files.............."
+  sleep 1
+  echo -e "${R}[!] It may take a while. Please wait...\n"
 
-    ${TERBR_COMMAND} ${TERBR_BACKUP_FILE} usr home || error_exit
+  ${TERBR_COMMAND} ${TERBR_BACKUP_FILE} usr home || error_exit
 
-    echo -e "${G}[!] Backup Done! "
+  echo -e "${G}[!] Backup Done! "
 }
 
 function restore () {
-    cd $BACKUP_SRC
+  cd $BACKUP_SRC
 
-    echo -e "${G}Restoring from '${TERBR_RESTORE_FILE}'\n"
-    echo -e "${Y}[*] Restoring Files..............."
-    sleep 1
-    echo -e "${R}[!] It may take a while. Please wait...\n"
+  echo -e "${G}Restoring from '${TERBR_RESTORE_FILE}'\n"
+  echo -e "${Y}[*] Restoring Files..............."
+  sleep 1
+  echo -e "${R}[!] It may take a while. Please wait...\n"
 
-    ${TERBR_COMMAND} ${TERBR_RESTORE_FILE} usr home || error_exit
+  ${TERBR_COMMAND} ${TERBR_RESTORE_FILE} usr home || error_exit
 
-    echo -e "${G} [!] Restore Done! "
+  echo -e "${G} [!] Restore Done! "
 }
 
 function usage() {
-    echo -e "Usage: $(basename $0) -[hvVbr] "
-    echo -e "Create Termux Backup and Restore it.\n"
-	echo -e "      -b           Take backup"
-	echo -e "      -r [FILE]    Restore backup"
-	echo -e "      -V           Verbose output"
-	echo -e "      -h           Print usage"
-	echo -e "      -v           Print version"
+  echo -e "Usage: $(basename $0) -[hvVbr] "
+  echo -e "Create Termux Backup and Restore it.\n"
+  echo -e "      -b           Take backup"
+  echo -e "      -r [FILE]    Restore backup"
+  echo -e "      -V           Verbose output"
+  echo -e "      -h           Print usage"
+  echo -e "      -v           Print version"
 }
 
 function version() {
-    echo "Terbr v4 - Termux Backup and Restore Tool"
-    echo "A tool to Backup and Restore Termux"
-    echo "Copyright (C) 2020  MrAlpha786"
-    echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
-    echo
-    echo "This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
-    echo
-    echo "Author: MrAlpha786 (github.com/MrAlpha786)"
+  echo "Terbr v4 - Termux Backup and Restore Tool"
+  echo "A tool to Backup and Restore Termux"
+  echo "Copyright (C) 2020  MrAlpha786"
+  echo "This program is free software: you can redistribute it and/or modify it under the terms of the GNU GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+  echo
+  echo "This program is distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+  echo
+  echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
 
 # Cleanup on unexpected error
 function error_exit() {
-    SIGNAL=$?
-    rm -f ${TERBR_BACKUP_FILE}
-    termux-wake-unlock
-    exit ${SIGNAL}
+  SIGNAL=$?
+  rm -f ${TERBR_BACKUP_FILE}
+  termux-wake-unlock
+  exit ${SIGNAL}
 }
 
 # Trap signals
 trap 'error_exit' 1 2 3 15 20
 
 while getopts ':hvVbr:' arg; do
-	case $arg in
-		b) unset TERBR_RESTORE; TERBR_BACKUP=True
-            ;;
-
-        r) unset TERBR_BACKUP; TERBR_RESTORE=True; TERBR_RESTORE_FILE=${OPTARG};
-            ;;
-
-		V) TERBR_VERBOSE=True
-            ;;
-
-		h) usage; exit
-            ;;
-
-		v) version; exit
-            ;;
-
-        :) echo "$(basename $0): -${OPTARG} option requires an argument." >&2
-            exit 1
-            ;;
-
-        ?) echo "Invalid option -${OPTARG}" >&2
-            usage >&2; exit 1
-            ;;
-	esac
+  case $arg in
+    b) unset TERBR_RESTORE; TERBR_BACKUP=True;;
+    r) unset TERBR_BACKUP; TERBR_RESTORE=True; TERBR_RESTORE_FILE=${OPTARG};;
+    V) TERBR_VERBOSE=True;;
+    h) usage; exit;;
+    v) version; exit;;
+    :) echo "$(basename $0): -${OPTARG} option requires an argument.">&2; exit 1;;
+    ?) echo "Invalid option -${OPTARG}" >&2; usage >&2; exit 1;;
+  esac
 done
 
 # Show usage if no option is provided
 if [ ${OPTIND} -eq 1 ]; then
-    usage >&2; exit 1
+  usage >&2; exit 1
 fi
 
 # Check Storage Permission
 if [ ! -w ${DEFAULT_DEST} ]; then
-    termux-setup-storage
+  termux-setup-storage
 fi
 
 # Check if pigz is installed
 if type -p pigz &> /dev/null; then
-    TERBR_COMMAND+=' -I pigz'
+  TERBR_COMMAND+=' -I pigz'
 else
-    termux-wake-lock
-    TERBR_COMMAND+=' -z'
+  termux-wake-lock
+  TERBR_COMMAND+=' -z'
 fi
 
 # Enable Verbose mode
 if [ "${TERBR_VERBOSE}" == True ]; then
-    TERBR_COMMAND+=' -v'
+  TERBR_COMMAND+=' -v'
 fi
 
 # Backup
 if [ "${TERBR_BACKUP}" == True ]; then
-    TERBR_COMMAND+=' -cf'
-    backup
+  TERBR_COMMAND+=' -cf'
+  backup
 fi
 
 # Check if file to restore exists.
 if [ ! -f ${TERBR_RESTORE_FILE} ]; then
-    echo "${TERBR_RESTORE_FILE}: No such file or directory exists." >&2
-    exit 1
+  echo "${TERBR_RESTORE_FILE}: No such file or directory exists." >&2
+  exit 1
 fi
 
 # Restore
 if [ "${TERBR_RESTORE}" == True ]; then
-    TERBR_COMMAND+=' -xf'
-    restore
+  TERBR_COMMAND+=' -xf'
+  restore
 fi
 
 termux-wake-unlock
