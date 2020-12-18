@@ -51,7 +51,7 @@ function backup() {
   sleep 1
   echo -e "${R}[!] It may take a while. Please wait...\n"
 
-  ${TERBR_COMMAND} ${TERBR_BACKUP_FILE} usr home || error_exit
+  ${TERBR_COMMAND} "${TERBR_BACKUP_FILE}" usr home || error_exit
 
   echo -e "${G}[!] Backup Done! "
 }
@@ -64,7 +64,7 @@ function restore () {
   sleep 1
   echo -e "${R}[!] It may take a while. Please wait...\n"
 
-  ${TERBR_COMMAND} ${TERBR_RESTORE_FILE} usr home || error_exit
+  ${TERBR_COMMAND} "${TERBR_RESTORE_FILE}" usr home || error_exit
 
   echo -e "${G} [!] Restore Done! "
 }
