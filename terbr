@@ -119,7 +119,7 @@ if [ ${OPTIND} -eq 1 ]; then
 fi
 
 # Check Storage Permission
-if [ ! -w ${DEFAULT_DEST} ]; then
+if [ ! -w /storage/emulated/0/ ]; then
   termux-setup-storage
 fi
 
