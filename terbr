@@ -32,7 +32,7 @@ TERBR_COMMAND='tar'
 TERBR_BACKUP_FILE="/storage/emulated/0/termux_backup$(date +%m%d%Y_%H%M%S).bak"
 readonly BACKUP_SRC='/data/data/com.termux/files'
 
-function banner() {
+function banner () {
   echo
   echo -e "$B ┌───────────────────────┐"
   echo -e "$B │$C ▀█▀ █▀▀ █▀▀▄ █▀▄ █▀▀▄ $B│"
@@ -43,7 +43,7 @@ function banner() {
   echo
 }
 
-function backup() {
+function backup () {
   cd $BACKUP_SRC
 
   echo -e "${G}Saving to '${TERBR_BACKUP_FILE}'\n"
@@ -69,7 +69,7 @@ function restore () {
   echo -e "${G} [!] Restore Done! "
 }
 
-function usage() {
+function usage () {
   echo -e "Usage: $(basename $0) -[hvVbr] "
   echo -e "Create Termux Backup and Restore it.\n"
   echo -e "      -b           Take backup"
@@ -79,7 +79,7 @@ function usage() {
   echo -e "      -v           Print version"
 }
 
-function version() {
+function version () {
   echo "Terbr - Termux Backup and Restore Tool"
   echo "A tool to Backup and Restore Termux"
   echo "Copyright (C) 2020  MrAlpha786"
@@ -90,8 +90,13 @@ function version() {
   echo "Author: MrAlpha786 (github.com/MrAlpha786)"
 }
 
+#Print message to standard error
+function print_error () {
+    echo "$(basename $0): $1" >&2
+}
+
 # Cleanup on unexpected error
-function error_exit() {
+function error_exit () {
   SIGNAL=$?
   rm -f ${TERBR_BACKUP_FILE}
   termux-wake-unlock
@@ -108,8 +113,8 @@ while getopts ':hvVbr:' arg; do
     V) TERBR_VERBOSE=True;;
     h) usage; exit;;
     v) version; exit;;
-    :) echo "$(basename $0): -${OPTARG} option requires an argument.">&2; exit 1;;
-    ?) echo "Invalid option -${OPTARG}" >&2; usage >&2; exit 1;;
+    :) print_error "'${OPTARG}' option requires an argument."; usage >&2; exit 1;;
+    ?) print_error "unknown option '${OPTARG}'."; usage >&2; exit 1;;
   esac
 done
 
@@ -144,7 +149,7 @@ fi
 
 # Check if file to restore exists.
 if [ ! -f ${TERBR_RESTORE_FILE} ]; then
-  echo "${TERBR_RESTORE_FILE}: No such file or directory exists." >&2
+  print_error "${TERBR_RESTORE_FILE}: No such file or directory exists."
   exit 1
 fi
 
