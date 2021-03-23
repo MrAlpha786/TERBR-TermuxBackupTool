@@ -372,4 +372,5 @@ if [ ! $# == 0 ]; then
             echo -e "Try \"-h\" or \"--help\" for Help!"
 	esac
 fi
+stty echo
 exit
