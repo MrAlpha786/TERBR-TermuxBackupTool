@@ -77,10 +77,12 @@ function list_packages () {
     [[ $i ]] && IFS=" " tmp_array["${i:- }"]=1
   done
 
+  echo -e "${G} Saving installed packages to '${TERBR_PKGS}'\n"
+
   printf '%s\n' "${!tmp_array[@]}" > $TERBR_PKGS
 
   if [ -n "${TERBR_VERBOSE}" ];then
-      echo -e "$G[*] Installed Packages $N\n"
+      echo -e "$G [*] Installed Packages $N\n"
       nl "${TERBR_PKGS}"
   fi
 }
@@ -88,24 +90,23 @@ function list_packages () {
 function backup () {
   cd $BACKUP_SRC
 
-  echo -e "${G}Saving installed packages to '${TERBR_PKGS}'\n"
   list_packages || error_exit
 
-  echo -e "${G}Saving Backup to '${TERBR_BACKUP_FILE}'\n"
-  echo -e "${Y}[*] Backing Up Files.............."
-  echo -e "${R}[!] It may take a while. Please wait...$N\n"
+  echo -e "${G} Saving Backup to '${TERBR_BACKUP_FILE}'\n"
+  echo -e "${Y} [*] Backing Up Files.............."
+  echo -e "${R} [!] It may take a while. Please wait...$N\n"
 
   ${TERBR_COMMAND} "${TERBR_BACKUP_FILE}" ${TERBR_DIRS} | nl || error_exit
 
-  echo -e "${G}[!] Backup Done! "
+  echo -e "${G} [!] Backup Done! "
 }
 
 function restore () {
   cd $BACKUP_SRC
 
-  echo -e "${G}Restoring from '${TERBR_RESTORE_FILE}'\n"
-  echo -e "${Y}[*] Restoring Files..............."
-  echo -e "${R}[!] It may take a while. Please wait...\n"
+  echo -e "${G} Restoring from '${TERBR_RESTORE_FILE}'\n"
+  echo -e "${Y} [*] Restoring Files..............."
+  echo -e "${R} [!] It may take a while. Please wait...\n"
 
   ${TERBR_COMMAND} "${TERBR_RESTORE_FILE}" ${TERBR_DIRS} | nl || error_exit
 
@@ -183,6 +184,9 @@ fi
 if [ -n "${TERBR_VERBOSE}" ]; then
     TERBR_COMMAND+=' -v'
 fi
+
+# display terbr banner
+banner
 
 # list installed packages
 if [ -n "${TERBR_PKG_LIST}" ]; then
