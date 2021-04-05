@@ -6,24 +6,16 @@ _Backup Termux and Restore with just one command. Choose a directory to save bac
 
 ## Installation
 
-Just enter following commands in respective order:
-
-1.
-```bash
-apt-get update && apt-get upgrade -y
-```
-2.
-```bash
-apt-get install wget curl pigz tar -y
-```
+Just enter following command:
 
 Install __pigz__(recommended) to reduce time in backup and restore
 
-3.
 ```bash
 wget https://raw.githubusercontent.com/MrAlpha786/TERBR-TermuxBackupTool/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
 ```
+
 or
+
 ```bash
 curl -O https://raw.githubusercontent.com/MrAlpha786/TERBR-TermuxBackupTool/master/terbr && chmod u+x terbr && mv terbr $PREFIX/bin/
 ```
