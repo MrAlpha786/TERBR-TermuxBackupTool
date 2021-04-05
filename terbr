@@ -32,6 +32,8 @@ TERBR_COMMAND='tar'
 TERBR_DIRS='home'
 TERBR_BACKUP_FILE="/storage/emulated/0/termux_backup$(date +%m%d%Y_%H%M%S).bak"
 readonly BACKUP_SRC='/data/data/com.termux/files'
+readonly TERBR_HISTFILE=$PREFIX/var/log/apt/history.log
+readonly TERBR_PKGS=~/pkglist.out
 
 function banner () {
   echo
@@ -44,14 +46,56 @@ function banner () {
   echo
 }
 
+function list_packages () {
+  # Grep 'histfile' and create two arrays
+  # one of installed pkgs and one of removed pkgs
+  while IFS= read -r line; do
+    line=${line/-y/}
+    if [[ "$line" =~ ' install ' ]]; then
+      installed+=(${line##* install })
+    else
+      removed+=(${line##* remove })
+    fi
+  done < <(grep -E ' install | remove ' ${TERBR_HISTFILE})
+
+  # For every removed pkg, if it's also in installed pkgs
+  # remove it from installed pkgs
+  for pkg in "${removed[@]}";do
+    for i in "${!installed[@]}";do
+    if [[ "${installed[$i]}" == "$pkg" ]]; then
+      unset installed[$i]
+      break
+    fi
+    done
+  done
+
+  # Remove any duplicates
+  # And put them in TERBR_PKGS
+  declare -A tmp_array
+
+  for i in "${installed[@]}"; do
+    [[ $i ]] && IFS=" " tmp_array["${i:- }"]=1
+  done
+
+  printf '%s\n' "${!tmp_array[@]}" > $TERBR_PKGS
+
+  if [ -n "${TERBR_VERBOSE}" ];then
+      echo -e "$G[*] Installed Packages $N\n"
+      nl "${TERBR_PKGS}"
+  fi
+}
+
 function backup () {
   cd $BACKUP_SRC
 
-  echo -e "${G}Saving to '${TERBR_BACKUP_FILE}'\n"
-  echo -e "${Y}[*] Backing Up Files.............."
-  echo -e "${R}[!] It may take a while. Please wait...\n"
+  echo -e "${G}Saving installed packages to '${TERBR_PKGS}'\n"
+  list_packages || error_exit
 
-  ${TERBR_COMMAND} "${TERBR_BACKUP_FILE}" ${TERBR_DIRS} || error_exit
+  echo -e "${G}Saving Backup to '${TERBR_BACKUP_FILE}'\n"
+  echo -e "${Y}[*] Backing Up Files.............."
+  echo -e "${R}[!] It may take a while. Please wait...$N\n"
+
+  ${TERBR_COMMAND} "${TERBR_BACKUP_FILE}" ${TERBR_DIRS} | nl || error_exit
 
   echo -e "${G}[!] Backup Done! "
 }
@@ -63,7 +107,7 @@ function restore () {
   echo -e "${Y}[*] Restoring Files..............."
   echo -e "${R}[!] It may take a while. Please wait...\n"
 
-  ${TERBR_COMMAND} "${TERBR_RESTORE_FILE}" ${TERBR_DIRS} || error_exit
+  ${TERBR_COMMAND} "${TERBR_RESTORE_FILE}" ${TERBR_DIRS} | nl || error_exit
 
   echo -e "${G} [!] Restore Done! "
 }
@@ -71,12 +115,12 @@ function restore () {
 function usage () {
   echo -e "Usage: $(basename $0) -[hvVbr] "
   echo -e "Create Termux Backup and Restore it.\n"
-  echo -e "      -b           Take backup"
-  echo -e "      -r [FILE]    Restore backup"
-  echo -e "      -P           Backup/Restore PREFIX"
-  echo -e "      -V           Verbose output"
-  echo -e "      -h           Print usage"
-  echo -e "      -v           Print version"
+  echo -e "    -b           Take backup"
+  echo -e "    -r [FILE]    Restore backup"
+  echo -e "    -p           List Installed Packages"
+  echo -e "    -v           Verbose output"
+  echo -e "    -h           Print usage"
+  echo -e "    -V           Print version"
 }
 
 function version () {
@@ -105,14 +149,14 @@ function error_exit () {
 # Trap signals
 trap 'error_exit' 1 2 3 15 20
 
-while getopts ':hvVPbr:' arg; do
+while getopts ':hvVpbr:' arg; do
   case $arg in
     b) unset TERBR_RESTORE; TERBR_BACKUP=1;;
     r) unset TERBR_BACKUP; TERBR_RESTORE=1; TERBR_RESTORE_FILE="${OPTARG}";;
-    P) TERBR_DIRS+=' usr';;
-    V) TERBR_COMMAND+=' -v';;
+    p) TERBR_PKG_LIST=1;;
+    v) TERBR_VERBOSE=1;;
     h) usage; exit;;
-    v) version; exit;;
+    V) version; exit;;
     :) print_error "'${OPTARG}' option requires an argument."; usage >&2; exit 1;;
     ?) print_error "unknown option '${OPTARG}'."; usage >&2; exit 1;;
   esac
@@ -135,20 +179,30 @@ else
   TERBR_COMMAND+=' -z'
 fi
 
+# Enable verbose
+if [ -n "${TERBR_VERBOSE}" ]; then
+    TERBR_COMMAND+=' -v'
+fi
+
+# list installed packages
+if [ -n "${TERBR_PKG_LIST}" ]; then
+    list_packages
+fi
+
 # Backup
 if [ -n "${TERBR_BACKUP}" ]; then
   TERBR_COMMAND+=' -cf'
   backup
 fi
 
-# Check if file to restore exists.
-if [ ! -f "${TERBR_RESTORE_FILE}" ]; then
-  print_error "${TERBR_RESTORE_FILE}: No such file or directory exists."
-  exit 1
-fi
-
 # Restore
 if [ -n "${TERBR_RESTORE}" ]; then
+  # Check if file to restore exists.
+  if [ ! -f "${TERBR_RESTORE_FILE}" ]; then
+    print_error "${TERBR_RESTORE_FILE}: No such file or directory exists."
+    exit 1
+  fi
+
   TERBR_COMMAND+=' -xf'
   restore
 fi
