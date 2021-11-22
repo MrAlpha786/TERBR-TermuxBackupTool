@@ -55,8 +55,9 @@ function list_packages () {
       installed+=(${line##* install })
     else
       removed+=(${line##* remove })
+      removed+=(${line##* purge })
     fi
-  done < <(grep -E ' install | remove ' ${TERBR_HISTFILE})
+  done < <(grep -E ' install | remove | purge ' ${TERBR_HISTFILE})
 
   # For every removed pkg, if it's also in installed pkgs
   # remove it from installed pkgs
