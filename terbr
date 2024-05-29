@@ -196,7 +196,7 @@ fi
 
 # Backup
 if [ -n "${TERBR_BACKUP}" ]; then
-  TERBR_COMMAND+=' -cf'
+  TERBR_COMMAND+=' -czpf'
   backup
 fi
 
@@ -208,7 +208,7 @@ if [ -n "${TERBR_RESTORE}" ]; then
     exit 1
   fi
 
-  TERBR_COMMAND+=' -xf'
+  TERBR_COMMAND+=' -xzpf'
   restore
 fi
 
